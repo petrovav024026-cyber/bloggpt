@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Content Suite – Генератор постов</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <header class="px-6 py-4 bg-white shadow">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <h1 class="text-2xl font-bold">Content Suite <span class="text-slate-400 text-base">/ UI</span></h1>
+      <nav class="text-sm">
+        <a class="hover:underline" href="/docs" target="_blank">/docs</a>
+        <span class="mx-2 text-slate-300">|</span>
+        <a class="hover:underline" href="/ready" target="_blank">/ready</a>
+        <span class="mx-2 text-slate-300">|</span>
+        <a class="hover:underline" href="/health" target="_blank">/health</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6 grid md:grid-cols-2 gap-6">
+    <!-- Form -->
+    <section class="bg-white rounded-2xl shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Параметры генерации</h2>
+
+      <form id="genForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Тема поста *</label>
+          <input id="topic" required class="w-full border rounded-xl px-3 py-2" placeholder="AI тренды в соцсетях">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Цель (пресет)</label>
+            <select id="goal" class="w-full border rounded-xl px-3 py-2">
+              <option value="">—</option>
+              <option>news</option>
+              <option>traffic</option>
+              <option>leads</option>
+              <option>brand</option>
+              <option>offer</option>
+              <option>expert_tip</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Длина</label>
+            <select id="length" class="w-full border rounded-xl px-3 py-2">
+              <option>short</option>
+              <option selected>medium</option>
+              <option>long</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Язык</label>
+            <input id="language" value="ru" class="w-full border rounded-xl px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Новости (шт.)</label>
+            <input id="news_limit" type="number" min="0" max="10" value="3"
+                   class="w-full border rounded-xl px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Язык новостей</label>
+            <input id="news_language" placeholder="ru / en" class="w-full border rounded-xl px-3 py-2">
+          </div>
+        </div>
+
+        <details class="rounded-xl border p-4 bg-slate-50">
+          <summary class="cursor-pointer font-medium">Расширенные настройки</summary>
+          <div class="mt-4 space-y-3">
+            <div>
+              <label class="block text-sm mb-1">Тон (ключ или текст)</label>
+              <input id="tone" class="w-full border rounded-xl px-3 py-2" placeholder="witty_brisk / serious_trust ...">
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Аудитория (ключ или текст)</label>
+              <input id="audience" class="w-full border rounded-xl px-3 py-2" placeholder="smm_founders / devs_ai ...">
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Тематика</label>
+              <select id="theme" class="w-full border rounded-xl px-3 py-2">
+                <option value="">—</option>
+                <option>leads</option>
+                <option>traffic</option>
+                <option>ironic</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Ключевые слова (через запятую)</label>
+              <input id="keywords" class="w-full border rounded-xl px-3 py-2" placeholder="гайд, чек-лист">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm mb-1">Температура</label>
+                <input id="temperature" type="number" step="0.1" min="0" max="2" value="0.7"
+                       class="w-full border rounded-xl px-3 py-2">
+              </div>
+              <label class="flex items-center gap-2 mt-6">
+                <input id="make_image" type="checkbox" class="w-4 h-4">
+                <span class="text-sm">Сделать обложку (OpenAI Images)</span>
+              </label>
+            </div>
+          </div>
+        </details>
+
+        <div class="flex gap-3 pt-2">
+          <button id="runBtn" type="submit"
+            class="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50">
+            Сгенерировать
+          </button>
+          <button type="button" id="copyBtn"
+            class="px-4 py-2 rounded-xl border hover:bg-slate-100">
+            Скопировать ответ
+          </button>
+        </div>
+        <p id="status" class="text-sm text-slate-500 pt-2"></p>
+      </form>
+    </section>
+
+    <!-- Result -->
+    <section class="bg-white rounded-2xl shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Результат</h2>
+      <div id="result" class="space-y-4">
+        <div id="titleBox" class="hidden">
+          <div class="text-sm uppercase tracking-wide text-slate-400">Заголовок</div>
+          <h3 id="resTitle" class="text-2xl font-bold"></h3>
+        </div>
+
+        <div id="postBox" class="hidden">
+          <div class="text-sm uppercase tracking-wide text-slate-400">Текст поста</div>
+          <pre id="resPost" class="whitespace-pre-wrap bg-slate-50 p-3 rounded-xl border"></pre>
+        </div>
+
+        <div id="ctaBox" class="hidden">
+          <div class="text-sm uppercase tracking-wide text-slate-400">CTA</div>
+          <div id="resCta" class="p-3 rounded-xl border bg-amber-50"></div>
+        </div>
+
+        <div id="hashBox" class="hidden">
+          <div class="text-sm uppercase tracking-wide text-slate-400">Хэштеги</div>
+          <div id="resTags" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div id="linkBox" class="hidden">
+          <div class="text-sm uppercase tracking-wide text-slate-400">UTM-ссылка</div>
+          <a id="resLink" href="#" target="_blank" class="text-indigo-700 underline break-all"></a>
+        </div>
+
+        <div id="imgBox" class="hidden">
+          <div class="text-sm uppercase tracking-wide text-slate-400">Обложка</div>
+          <img id="resImg" class="rounded-xl border max-h-72" alt="generated cover" />
+          <div class="text-xs text-slate-500 mt-1" id="imgNote"></div>
+        </div>
+
+        <div id="statsBox" class="hidden">
+          <div class="text-sm uppercase tracking-wide text-slate-400">Статистика</div>
+          <div class="text-sm bg-slate-50 p-3 rounded-xl border" id="resStats"></div>
+        </div>
+
+        <div id="newsBox" class="hidden">
+          <div class="text-sm uppercase tracking-wide text-slate-400">Контекст новостей (Currents)</div>
+          <ul id="resNews" class="list-disc list-inside space-y-1"></ul>
+        </div>
+
+        <div class="pt-2">
+          <details>
+            <summary class="cursor-pointer text-sm text-slate-500">Сырой JSON-ответ</summary>
+            <pre id="rawJson" class="text-xs bg-slate-50 p-3 rounded-xl border overflow-x-auto"></pre>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="max-w-6xl mx-auto p-6 text-center text-xs text-slate-500">
+    v1 • Работает на FastAPI + Render • Если вкладка уснула, первый запрос может занять 50+ сек на Free плане
+  </footer>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function pick(val) {
+      return val === "" ? undefined : val;
+    }
+
+    function chips(tags) {
+      return (tags || []).map(t => `<span class="px-2 py-1 rounded-lg bg-slate-100 border">#${t}</span>`).join(" ");
+    }
+
+    $("genForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("runBtn").disabled = true;
+      $("status").textContent = "Генерация…";
+      const body = {
+        topic: $("topic").value,
+        goal: pick($("goal").value),
+        length: $("length").value,
+        language: $("language").value,
+        news_limit: parseInt($("news_limit").value || "0", 10),
+        news_language: pick($("news_language").value),
+        tone: pick($("tone").value),
+        audience: pick($("audience").value),
+        theme: pick($("theme").value),
+        keywords: pick($("keywords").value)?.split(",").map(s => s.trim()).filter(Boolean),
+        temperature: parseFloat($("temperature").value || "0.7"),
+        make_image: $("make_image").checked
+      };
+
+      try {
+        const res = await fetch("/generate", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        $("rawJson").textContent = JSON.stringify(data, null, 2);
+
+        if (!res.ok) {
+          $("status").textContent = "Ошибка: " + (data.detail || res.status);
+          return;
+        }
+
+        // Fill UI
+        $("titleBox").classList.remove("hidden");
+        $("resTitle").textContent = data.title || "";
+        $("postBox").classList.remove("hidden");
+        $("resPost").textContent = data.post || "";
+        $("ctaBox").classList.remove("hidden");
+        $("resCta").textContent = data.cta || "";
+        $("hashBox").classList.remove("hidden");
+        $("resTags").innerHTML = chips(data.hashtags);
+
+        if (data.utm_link) {
+          $("linkBox").classList.remove("hidden");
+          $("resLink").href = data.utm_link;
+          $("resLink").textContent = data.utm_link;
+        } else {
+          $("linkBox").classList.add("hidden");
+        }
+
+        if (data.image_url) {
+          $("imgBox").classList.remove("hidden");
+          $("resImg").src = data.image_url;
+          $("imgNote").textContent = "";
+        } else {
+          $("imgBox").classList.add("hidden");
+          $("imgNote").textContent = "Изображение не запрашивалось или вернулся b64_json (не отображаем).";
+        }
+
+        $("statsBox").classList.remove("hidden");
+        $("resStats").textContent =
+          `tokens in: ${data.input_tokens} • tokens out: ${data.output_tokens} • $${data.cost_estimate}`;
+
+        const news = data.news_used || [];
+        if (news.length) {
+          $("newsBox").classList.remove("hidden");
+          $("resNews").innerHTML = news.map(n =>
+            `<li><a class="text-indigo-700 underline" href="${n.url || '#'}" target="_blank">${n.title}</a></li>`
+          ).join("");
+        } else {
+          $("newsBox").classList.add("hidden");
+        }
+
+        $("status").textContent = "Готово ✔";
+      } catch (err) {
+        $("status").textContent = "Ошибка сети: " + err;
+      } finally {
+        $("runBtn").disabled = false;
+      }
+    });
+
+    $("copyBtn").addEventListener("click", async () => {
+      const title = $("resTitle").textContent || "";
+      const post = $("resPost").textContent || "";
+      const cta = $("resCta").textContent ? `\n\n${$("resCta").textContent}` : "";
+      const tags = Array.from($("resTags").querySelectorAll("span")).map(s => s.textContent).join(" ");
+      const text = [title, post, cta, tags].filter(Boolean).join("\n\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        $("status").textContent = "Скопировано в буфер обмена 📋";
+      } catch {
+        $("status").textContent = "Не удалось скопировать";
+      }
+    });
+  </script>
+</body>
+</html>
