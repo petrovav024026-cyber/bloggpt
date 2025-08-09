@@ -1,0 +1,6 @@
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+openai>=1.30.0
+requests>=2.31.0
+tiktoken>=0.7.0
+pydantic>=2.5.0
