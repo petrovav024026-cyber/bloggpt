@@ -1,7 +1,7 @@
-fastapi>=0.110.0
-uvicorn[standard]>=0.29.0
-openai>=1.30.0
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+openai>=1.40.0
 requests>=2.31.0
 tiktoken>=0.7.0
-pydantic>=2.5.0
-gunicorn>=21.2.0
+pydantic>=2.7.0
+python-dotenv>=1.0.1
