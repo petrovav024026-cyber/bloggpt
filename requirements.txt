@@ -4,3 +4,4 @@ openai>=1.30.0
 requests>=2.31.0
 tiktoken>=0.7.0
 pydantic>=2.5.0
+gunicorn>=21.2.0
