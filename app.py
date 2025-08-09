@@ -519,6 +519,15 @@ app = FastAPI(
     version="1.0.0",
     description="Генерация постов с контекстом новостей (Currents) и OpenAI.",
 )
+from fastapi.responses import FileResponse, HTMLResponse
+import os
+
+@app.get("/", include_in_schema=False)
+def ui():
+    """Отдаёт index.html из корня репозитория."""
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
+    return HTMLResponse("<p>index.html not found. Endpoints: /health, /ready, /generate, /docs</p>")
 
 # CORS (удобно для локальной разработки/фронта)
 origins_env = os.getenv("CORS_ALLOW_ORIGINS", "*")
