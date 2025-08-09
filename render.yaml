@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: content-suite
+    env: python
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CURRENTS_API_KEY
+        sync: false
+      - key: OPENAI_TEXT_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_IMAGE_MODEL
+        value: gpt-image-1
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ALLOW_ORIGINS
+        value: "*"
